@@ -1,0 +1,14 @@
+.a{
+    color: #1a254d;
+}
+
+@media (max-width: 600px) {
+    .responsive {
+        display: none;
+    }
+}
+
+.border{
+    border-radius: 21px;
+}
+

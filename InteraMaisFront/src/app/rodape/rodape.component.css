@@ -1,0 +1,22 @@
+ul.lista {
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+ul.lista li{
+    display: inline;
+    margin: 0px;
+    padding: 0px;
+}
+
+a {
+    color: gray;
+    margin-left: 13px;
+    margin-right: 13px;
+}
+
+.fundo{
+    background-color: gray;
+}
+

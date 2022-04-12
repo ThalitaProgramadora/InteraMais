@@ -1,0 +1,69 @@
+package com.redeSocial.InteraMais.service;
+
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import com.redeSocial.InteraMais.model.UserLogin;
+import com.redeSocial.InteraMais.model.Usuario;
+import com.redeSocial.InteraMais.repository.UsuarioRepository;
+import org.apache.commons.codec.binary.Base64;
+
+@Service
+public class UsuarioService {
+	
+	@Autowired
+	private UsuarioRepository repository;
+	
+	public Usuario cadastrarUsuario (Usuario usuario) {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		
+		String senhaEncoder = encoder.encode(usuario.getSenha());
+		usuario.setSenha(senhaEncoder);
+		
+		return repository.save(usuario);
+	}
+	
+	public Usuario getUsuarioById (Long id) {
+		Optional<Usuario> usuario = repository.findById(id);
+		return usuario.get();
+	}
+	
+	public Usuario getByUsuario (String path) {
+		Optional<Usuario> usuario = repository.findByUsuario(path);
+		return usuario.get();
+	}
+	
+	public List<Usuario> getPerfilByUsuario (String path) {
+		List<Usuario> usuario = repository.findByUsuarioContainingIgnoreCase(path);
+		return usuario;
+	}
+	
+	public Optional<UserLogin> logar (Optional<UserLogin> user) {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		Optional<Usuario> usuario = repository.findByUsuario(user.get().getUsuario());
+		
+		if(usuario.isPresent()) {
+			if (encoder.matches(user.get().getSenha(), usuario.get().getSenha())) {
+				String auth = user.get().getUsuario() + ":" + user.get().getSenha();
+				byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
+				String authHeader = "Basic " + new String (encodedAuth);
+				
+				user.get().setToken(authHeader);
+				user.get().setId(usuario.get().getId());
+				user.get().setNome(usuario.get().getNome());
+				user.get().setUsuario(usuario.get().getUsuario());
+				user.get().setEmail(usuario.get().getEmail());
+				user.get().setFoto(usuario.get().getFoto());
+				user.get().setTipo(usuario.get().getTipo());
+				
+				return user;
+			}
+		}
+		
+		return null;
+	}
+
+}
